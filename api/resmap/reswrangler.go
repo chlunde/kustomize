@@ -86,15 +86,27 @@ func (m *resWrangler) Append(res *resource.Resource) error {
 // Append implements ResMap.
 func (m *resWrangler) AppendMany(resources ...*resource.Resource) error {
 	ids := m.AllIds()
+	seen := make(map[resid.ResId]struct{}, len(ids)+len(resources))
+	for _, id := range ids {
+		seen[id] = struct{}{}
+	}
+
 	for _, res := range resources {
 		newId := res.CurId()
-		for _, id := range ids {
-			if id == newId {
-				return fmt.Errorf(
-					"may not add resource with an already registered id: %s", id)
+		/*
+			for _, id := range ids {
+				if id == newId {
+					return fmt.Errorf(
+						"may not add resource with an already registered id: %s", id)
+				}
 			}
+			ids = append(ids, newId)
+		*/
+		if _, ok := seen[newId]; ok {
+			return fmt.Errorf(
+				"may not add resource with an already registered id: %s", newId)
 		}
-		ids = append(ids, newId)
+		seen[newId] = struct{}{}
 		m.append(res)
 	}
 
