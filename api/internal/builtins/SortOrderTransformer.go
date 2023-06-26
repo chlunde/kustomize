@@ -89,11 +89,9 @@ func (p *SortOrderTransformerPlugin) Transform(m resmap.ResMap) (err error) {
 // ordering.
 func applyOrdering(m resmap.ResMap, resources []*resource.Resource) error {
 	m.Clear()
-	for _, r := range resources {
-		err := m.Append(r)
-		if err != nil {
-			return errors.WrapPrefixf(err, "SortOrderTransformer: Failed to append to resources")
-		}
+	err := m.AppendMany(resources...)
+	if err != nil {
+		return errors.WrapPrefixf(err, "SortOrderTransformer: Failed to append to resources")
 	}
 	return nil
 }
@@ -128,7 +126,6 @@ func newLegacyIDSorter(
 		}
 		return m
 	}()
-
 
 	ret := &legacyIDSorter{typeOrders: typeOrders}
 	for _, res := range resources {
